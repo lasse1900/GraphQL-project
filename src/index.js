@@ -30,6 +30,7 @@ const posts = [{
   body: 'intelliMouse',
   published: 2019,
   author: '1',
+  comment: '1'
 },
 {
   id: '2',
@@ -37,6 +38,7 @@ const posts = [{
   body: 'used HP laptop',
   published: 2018,
   author: '1',
+  comment: '1'
 },
 {
   id: '3',
@@ -44,6 +46,7 @@ const posts = [{
   body: 'Samsung A40',
   published: 2019,
   author: '2',
+  comment: '2'
 }]
 
 const comments = [{
@@ -95,6 +98,7 @@ const typeDefs = `
         body: String!
         published: Boolean!
         author: User!
+        comments: [Comment!]!
     }
 
     type Comment {
@@ -151,6 +155,11 @@ const resolvers = {
     author(parent, args, ctx, info) {
       return users.find((user) => {
         return user.id === parent.author
+      })
+    },
+    comments(parent, args, cts, info) {
+      return comments.filter((comment) => {
+        return comment.id === parent.id
       })
     }
   },
