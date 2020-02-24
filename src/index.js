@@ -26,50 +26,50 @@ const users = [{
 }]
 
 const posts = [{
-  id: '1',
+  id: '11',
   title: 'mouse',
   body: 'intelliMouse',
-  published: 2019,
+  published: false,
   author: '1',
   comment: '1'
 },
 {
-  id: '2',
+  id: '12',
   title: 'laptop',
   body: 'used HP laptop',
-  published: 2018,
+  published: true,
   author: '1',
   comment: '1'
 },
 {
-  id: '3',
+  id: '13',
   title: 'mobile phone',
   body: 'Samsung A40',
-  published: 2019,
+  published: true,
   author: '2',
   comment: '2'
 }]
 
 const comments = [{
-  id: '1',
+  id: '102',
   text: 'my first comment',
   author: '1',
   post: '1'
 },
 {
-  id: '2',
+  id: '103',
   text: 'my second comment',
   author: '1',
   post: '1'
 },
 {
-  id: '3',
+  id: '104',
   text: 'my third comment',
   author: '2',
   post: '2'
 },
 {
-  id: '4',
+  id: '105',
   text: 'my fourth comment',
   author: '3',
   post: '3'
@@ -87,6 +87,7 @@ const typeDefs = `
     type Mutation {
       createUser(name: String!, email: String!, age: Int): User!
       createPost(title: String!, body: String!, published: Boolean!, author: ID! ): Post!
+      createComment(text: String!, author: ID!, post: ID! ): Comment!
     }
 
     type User {
@@ -193,6 +194,24 @@ const resolvers = {
       posts.push(post)
 
       return post
+    },
+    createComment(parent, args, ctx, info) {
+      const userExists = users.some((user) => user.id === args.author)
+      const postExists = posts.some((post) => post.id === args.post && post.published )
+
+      if (!userExists || !postExists) {
+        throw new Error('User or Post not found')
+      }
+
+      const comment = {
+        id: uuidv4(),
+        text: args.text,
+        author: args.author,
+        post: args.post
+      }
+      comments.push(comment)
+
+      return comment
     }
   },
   Post: {
