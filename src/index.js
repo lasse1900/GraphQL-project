@@ -85,9 +85,15 @@ const typeDefs = `
     }
 
     type Mutation {
-      createUser(name: String!, email: String!, age: Int): User!
+      createUser(data: CreateUserInput): User!
       createPost(title: String!, body: String!, published: Boolean!, author: ID! ): Post!
       createComment(text: String!, author: ID!, post: ID! ): Comment!
+    }
+
+    input CreateUserInput {
+      name: String!
+      email: String!
+      age: Int
     }
 
     type User {
@@ -176,7 +182,7 @@ const resolvers = {
       return user
     },
     createPost(parent, args, ctx, info) {
-      const userExists = users.some((user) => user.id === args.author)
+      const userExists = users.some((user) => user.id === args.data.author)
 
       if (!userExists) {
         throw new Error('User not found')
@@ -184,7 +190,7 @@ const resolvers = {
 
       const post = {
         id: uuidv4(),
-        ...args
+        ...args.data
       }
       posts.push(post)
 
@@ -192,7 +198,7 @@ const resolvers = {
     },
     createComment(parent, args, ctx, info) {
       const userExists = users.some((user) => user.id === args.author)
-      const postExists = posts.some((post) => post.id === args.post && post.published )
+      const postExists = posts.some((post) => post.id === args.post && post.published)
 
       if (!userExists || !postExists) {
         throw new Error('User or Post not found')
