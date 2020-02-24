@@ -6,73 +6,59 @@ import { v4 as uuidv4 } from 'uuid';
 // Demo user data
 const users = [{
   id: '1',
-  name: 'Lauri',
-  email: 'lasse@gmail.com',
-  age: 59,
-  comment: 'Laurin kommentti'
-},
-{
+  name: 'Andrew',
+  email: 'andrew@example.com',
+  age: 27
+}, {
   id: '2',
-  name: 'Jess',
-  email: 'jess@gmail.com',
-  comment: 'Jessen kommentti'
-},
-{
+  name: 'Sarah',
+  email: 'sarah@example.com'
+}, {
   id: '3',
-  name: 'Adrian',
-  email: 'adrian@gmail.com',
-  age: 39,
-  comment: 'Adrianin kommentti'
+  name: 'Mike',
+  email: 'mike@example.com'
 }]
 
 const posts = [{
+  id: '10',
+  title: 'GraphQL 101',
+  body: 'This is how to use GraphQL...',
+  published: true,
+  author: '1'
+}, {
   id: '11',
-  title: 'mouse',
-  body: 'intelliMouse',
+  title: 'GraphQL 201',
+  body: 'This is an advanced GraphQL post...',
   published: false,
-  author: '1',
-  comment: '1'
-},
-{
+  author: '1'
+}, {
   id: '12',
-  title: 'laptop',
-  body: 'used HP laptop',
+  title: 'Programming Music',
+  body: '',
   published: true,
-  author: '1',
-  comment: '1'
-},
-{
-  id: '13',
-  title: 'mobile phone',
-  body: 'Samsung A40',
-  published: true,
-  author: '2',
-  comment: '2'
+  author: '2'
 }]
 
 const comments = [{
   id: '102',
-  text: 'my first comment',
-  author: '1',
-  post: '1'
-},
-{
-  id: '103',
-  text: 'my second comment',
-  author: '1',
-  post: '1'
-},
-{
-  id: '104',
-  text: 'my third comment',
-  author: '2',
-  post: '2'
-},
-{
-  id: '105',
-  text: 'my fourth comment',
+  text: 'This worked well for me. Thanks!',
   author: '3',
-  post: '3'
+  post: '10'
+}, {
+  id: '103',
+  text: 'Glad you enjoyed it.',
+  author: '1',
+  post: '10'
+}, {
+  id: '104',
+  text: 'This did no work.',
+  author: '2',
+  post: '11'
+}, {
+  id: '105',
+  text: 'Nevermind. I got it to work.',
+  author: '1',
+  post: '11'
 }]
 
 const typeDefs = `
@@ -85,15 +71,28 @@ const typeDefs = `
     }
 
     type Mutation {
-      createUser(data: CreateUserInput): User!
-      createPost(title: String!, body: String!, published: Boolean!, author: ID! ): Post!
-      createComment(text: String!, author: ID!, post: ID! ): Comment!
+      createUser(data: CreateUserInput!): User!
+      createPost(data: CreatePostInput!): Post!
+      createComment(data: CreateCommentInput!): Comment!
     }
 
     input CreateUserInput {
       name: String!
       email: String!
       age: Int
+    }
+
+    input CreatePostInput {
+      title: String!
+      body: String!
+      published: Boolean!
+      author: ID!
+    }
+
+    input CreateCommentInput {
+      text: String!
+      author: ID!
+      post: ID!
     }
 
     type User {
@@ -197,8 +196,8 @@ const resolvers = {
       return post
     },
     createComment(parent, args, ctx, info) {
-      const userExists = users.some((user) => user.id === args.author)
-      const postExists = posts.some((post) => post.id === args.post && post.published)
+      const userExists = users.some((user) => user.id === args.data.author)
+      const postExists = posts.some((post) => post.id === args.data.post && post.published)
 
       if (!userExists || !postExists) {
         throw new Error('User or Post not found')
@@ -206,7 +205,7 @@ const resolvers = {
 
       const comment = {
         id: uuidv4(),
-        ...args
+        ...args.data
       }
       comments.push(comment)
 
